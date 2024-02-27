@@ -7,8 +7,12 @@ CREATE TABLE gpeArticles (
     paper varchar(256),
     author TEXT,
     gpes TEXT,
-    parseDATE DATETIME
+    scrapeDate DATETIME,
+    parseDate DATETIME
 );
+INSERT INTO gpeArticles (link, paper)
+VALUES ('test.com', 'testPaper');
+
 
 -- use austrian_news_analysing;
 -- CREATE TABLE gpeDictionary (
@@ -27,3 +31,7 @@ CREATE TABLE gpeArticles (
 
 use austrian_news_analysing;
 DROP TABLE gpeArticles;
+
+
+-- deleteing test dummy
+DELETE FROM gpeArticles WHERE link='test.com' AND paper="testPaper";
