@@ -1,4 +1,3 @@
-import json
 import spacy
 import pymysql
 from dotenv import load_dotenv
@@ -8,60 +7,38 @@ import os
 
 #load_dotenv("../SETUP/.env")
 load_dotenv("./.env")
-host = os.environ.get("NMprod_db_domain")
-user = os.environ.get("dbuser")
-password = os.environ.get("dbpass")
-dbPrs = os.environ.get("dbnamePrs")
-dbAna = os.environ.get("dbnameAna")
-charset = os.environ.get("dbCharst")
-tableArsDe = os.environ.get("derstandardPrs")
-# tableArsKr = os.environ.get("kroneArs")
-# tableArsOr = os.environ.get("orfArs")
-# tableArsOe = os.environ.get("oe24Ars")
-# tableMonthly = os.environ.get("monthlyArs")
-
 
 dbconnection = pymysql.connect(
-            host=host,
-            user=user,
-            password=password,
-            db=dbPrs,
-            charset=charset,
+            host=os.environ.get("NMprod_db_domain"),
+            user=os.environ.get("dbuser"),
+            password=os.environ.get("dbpass"),
+            db=os.environ.get("dbnamePrs"),
+            charset=os.environ.get("dbCharst"),
             cursorclass=pymysql.cursors.DictCursor,
         )
 cursor = dbconnection.cursor()
 
-# loading data to be parsed from database (accounting for data already parsed)
-sqlQuery = f"""SELECT * from {tableArsDe} ORDER BY ID DESC LIMIT 1
+# loading data to be parsed from database TO-DO: (accounting for data already parsed)
+sqlQuery = f"""SELECT *, 'derstandard' as paper from {os.environ.get("derstandardPrs")} ORDER BY ID DESC LIMIT 2
             ;"""
 cursor.execute(sqlQuery)
-resultsDerstandard = cursor.fetchall()
+results = cursor.fetchall()
+#print(results)
 
 # closing connection to db                                                                                                                                
 dbconnection.close()
 
-
-
-
-
-
-
-## get data, sql call for articles not recognised yet 
-
-# data = []
-# with open('test_articles.json') as articles:
-#     opened = json.load(articles)
-#     for i in opened:
-#         data.append(i['story'])
-
-
-# ## recognise gpes
-# nlp = spacy.load("de_core_news_lg")
-# for i in data:
-#     doc = nlp(i)
-#     for ent in doc.ents:
-#         if ent.label_ == "LOC":
-#             print(ent.text, ent.label_)
+# parsing gpe from articles
+parsed_data = []
+nlp = spacy.load("de_core_news_lg")
+for result in results:
+    data =[]
+    Doc = nlp("; ".join([result['story'], result['headline'], result['subtext']]))
+    for ent in Doc.ents:
+        if ent.label_ == "LOC":
+            data.append(ent.text)
+    parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'gpe': data})
+print(parsed_data)
 
 
 ## dump gpes into database per url
