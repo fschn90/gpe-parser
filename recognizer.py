@@ -23,7 +23,7 @@ sqlQuery = f"""SELECT *, 'derstandard' as paper from {os.environ.get("derstandar
             ;"""
 cursor.execute(sqlQuery)
 results = cursor.fetchall()
-#print(results)
+# print(results)
 
 # closing connection to db                                                                                                                                
 dbconnection.close()
@@ -37,11 +37,33 @@ for result in results:
     for ent in Doc.ents:
         if ent.label_ == "LOC":
             data.append(ent.text)
-    parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'gpe': data})
-print(parsed_data)
-
+    parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'author':result['author'], 'gpe': data})
+# print(parsed_data)
 
 ## dump gpes into database per url
+
+dbconnection = pymysql.connect(
+            host=os.environ.get("NMprod_db_domain"),
+            user=os.environ.get("dbuser"),
+            password=os.environ.get("dbpass"),
+            db=os.environ.get("dbnameAna"),
+            charset=os.environ.get("dbCharst"),
+            cursorclass=pymysql.cursors.DictCursor,
+        )
+cursor = dbconnection.cursor()
+
+for article in parsed_data:
+    cursor.execute(f'''
+        INSERT INTO gpeArticles
+        (link,
+        paper,
+        author, 
+        gpes,
+        parseDATE) 
+        VALUES 
+        (%s, %s, %s, %s, NOW())''', 
+    [article['link'], article['paper'], article['author'], "; ".join(article['gpe'])])
+    dbconnection.commit()  
 
 ## dump gpes into database per gpe
 
