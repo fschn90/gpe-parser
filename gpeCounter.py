@@ -2,6 +2,7 @@ import spacy
 import pymysql
 from dotenv import load_dotenv
 import os
+from collections import Counter
 
 #load_dotenv("../SETUP/.env")
 load_dotenv("./.env")
@@ -18,13 +19,15 @@ dbconnection = pymysql.connect(
 cursor = dbconnection.cursor()
 
 #### get previously recognised gpes  
-sqlQuery = f"""SELECT * FROM gpeArticles LIMIT 3;"""
+sqlQuery = f"""SELECT * FROM gpeArticles order by id desc LIMIT 1;"""
 cursor.execute(sqlQuery)
 resulted = cursor.fetchall()
-resulted_list = [i['gpe'] for i in resulted]
+resulted_list = [i['gpes'].split('; ') for i in resulted]
+# print(resulted_list)
 
 #### first add unique gpes as columns to table, then second count gpes in article 
 for result in resulted:
+
     # check gpes already in columns
     sqlQuery = f"""select column_name from information_schema.columns where table_schema = 'austrian_news_analysing' and table_name = 'gpeCounted'"""
     cursor.execute(sqlQuery)
@@ -38,3 +41,7 @@ for result in resulted:
                         sqlQuery = f"""ALTER TABLE gpeCounted ADD {gpe} INT;"""
                         cursor.execute(sqlQuery)
 
+
+    # counting gpes 
+    countedGpes = Counter(resulted_list[0])
+    ### https://stackoverflow.com/questions/22920842/using-pythons-dictionarys-to-create-a-generic-mysql-insert-string
