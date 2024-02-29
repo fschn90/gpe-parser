@@ -19,13 +19,11 @@ dbconnection = pymysql.connect(
 cursor = dbconnection.cursor()
 
 #### get previously recognised gpes  
-sqlQuery = f"""SELECT * FROM gpeArticles order by id desc LIMIT 1;"""
+sqlQuery = f"""SELECT * FROM gpeArticles WHERE link NOT IN (SELECT link FROM gpeCounted) order by id desc LIMIT 1;"""
 cursor.execute(sqlQuery)
 resulted = cursor.fetchall()
-resulted_list = [i['gpes'].split('; ') for i in resulted]
+# resulted_list = [i['gpes'].split('; ') for i in resulted]
 # print(resulted_list)
-
-#### TO-DO: add loop to make soure not in gepCounted yet!
 
 #### first add unique gpes as columns to table, then second count gpes in article 
 for result in resulted:
@@ -49,9 +47,9 @@ for result in resulted:
     countedGpes = Counter(result)
     ### https://stackoverflow.com/questions/22920842/using-pythons-dictionarys-to-create-a-generic-mysql-insert-string
     query = 'INSRET INTO gpeCounted ({0}) VALUES ({1})'
-    columns = ','.join(result.keys())
-    placeholders = ','.join(['%s'] * len(d))
-    values = result.values()
+    columns = ','.join(countedGpes.keys())
+    placeholders = ','.join(['%s'] * len(countedGpes))
+    values = countedGpes.values()
     cursor.execute(query.format(columns, placeholders), values)
     dbconnection.commit()
 
