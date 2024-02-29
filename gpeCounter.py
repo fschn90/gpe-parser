@@ -25,6 +25,8 @@ resulted = cursor.fetchall()
 resulted_list = [i['gpes'].split('; ') for i in resulted]
 # print(resulted_list)
 
+#### TO-DO: add loop to make soure not in gepCounted yet!
+
 #### first add unique gpes as columns to table, then second count gpes in article 
 for result in resulted:
 
@@ -40,8 +42,16 @@ for result in resulted:
                         alreadyCounted.append(gpe)
                         sqlQuery = f"""ALTER TABLE gpeCounted ADD {gpe} INT;"""
                         cursor.execute(sqlQuery)
+                        dbconnection.commit()
 
 
     # counting gpes 
-    countedGpes = Counter(resulted_list[0])
+    countedGpes = Counter(result)
     ### https://stackoverflow.com/questions/22920842/using-pythons-dictionarys-to-create-a-generic-mysql-insert-string
+    query = 'INSRET INTO gpeCounted ({0}) VALUES ({1})'
+    columns = ','.join(result.keys())
+    placeholders = ','.join(['%s'] * len(d))
+    values = result.values()
+    cursor.execute(query.format(columns, placeholders), values)
+    dbconnection.commit()
+

@@ -44,7 +44,7 @@ VALUES ('test.com', 'testPaper');
 
 use austrian_news_analysing;
 DROP TABLE gpeArticles;
-
+DROP TABLE gpeArticles;
 
 -- deleteing test dummy
 DELETE FROM gpeArticles WHERE link='test.com' AND paper="testPaper";
