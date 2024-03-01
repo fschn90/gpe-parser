@@ -49,3 +49,7 @@ DROP TABLE gpeArticles;
 -- deleteing test dummy
 DELETE FROM gpeArticles WHERE link='test.com' AND paper="testPaper";
 DELETE FROM gpeCounted WHERE link='test.com' AND paper="testPaper";
+
+-- ukrain counter
+
+SELECT SUM(Ukraine) FROM gpeCounted GROUP BY scrapeDate;
