@@ -19,7 +19,7 @@ dbconnection = pymysql.connect(
 cursor = dbconnection.cursor()
 
 #### get previously recognised gpes  
-sqlQuery = f"""SELECT * FROM gpeArticles WHERE link NOT IN (SELECT link FROM gpeCounted) order by id desc LIMIT 1;"""
+sqlQuery = f"""SELECT * FROM gpeArticles WHERE link NOT IN (SELECT link FROM gpeCounted) order by id desc LIMIT 10;"""
 cursor.execute(sqlQuery)
 resulted = cursor.fetchall()
 # resulted_list = [i['gpes'].split('; ') for i in resulted]
@@ -28,8 +28,10 @@ resulted = cursor.fetchall()
 #### first add unique gpes as columns to table, then second count gpes in article 
 for result in resulted:
 
+
+    ### TO-DO: move check of gpes already in columsn out of loop, only needs to be done once and then simple list.append() in loop for added gpes
     # check gpes already in columns
-    sqlQuery = f"""select column_name from information_schema.columns where table_schema = 'austrian_news_analysing' and table_name = 'gpeCounted'"""
+    sqlQuery = f"""select column_name from information_schema.columns where table_schema = 'austrian_news_analysing' and table_name = 'gpeCounted';"""
     cursor.execute(sqlQuery)
     columns_result = cursor.fetchall()
     alreadyCounted = [column['column_name'] for column in resulted]
@@ -42,6 +44,7 @@ for result in resulted:
                         cursor.execute(sqlQuery)
                         dbconnection.commit()
 
+    #### TO-DO: fix error here:  cursor.execute(query.format(columns, placeholders), values) -> TypeError: not enough arguments for format string
 
     # counting gpes 
     countedGpes = Counter(result)
