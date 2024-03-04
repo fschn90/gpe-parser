@@ -35,6 +35,8 @@ alreadyCounted = [column['column_name'] for column in columns_result]
 #### first add unique gpes as columns to table, then second count gpes in article 
 for result in resulted:
 
+### TO-DO insert gpe somehow
+
     # add gpes not yet in columns
     if result['gpes'] is not None:
         for gpe in result['gpes'].split('; '):
@@ -51,8 +53,8 @@ for result in resulted:
         ### https://stackoverflow.com/questions/22920842/using-pythons-dictionarys-to-create-a-generic-mysql-insert-string
         query = 'INSERT INTO gpeCounted ({0}) VALUES ({1})'
         columns = ','.join(result.keys())
-        placeholders = ','.join(['%s'] * len(result))
-        values = result.values()
+        placeholders = ', '.join(['%s'] * len(result))
+        values = list(result.values())
         cursor.execute(query.format(columns, placeholders), values)
         dbconnection.commit()
 
