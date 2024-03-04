@@ -20,6 +20,7 @@ CREATE TABLE gpeCounted (
     link varchar(256),
     paper varchar(256),
     author TEXT,
+    gpes TEXT,
     scrapeDate DATETIME,
     parseDate DATETIME
 );
@@ -53,3 +54,6 @@ DELETE FROM gpeCounted WHERE link='test.com' AND paper="testPaper";
 -- ukrain counter
 
 SELECT SUM(Ukraine) FROM gpeCounted GROUP BY scrapeDate;
+
+-- add column
+ALTER TABLE gpeCounted ADD gpes TEXT;
