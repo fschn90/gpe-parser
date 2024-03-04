@@ -44,12 +44,8 @@ for result in resulted:
                 cursor.execute(sqlQuery)
                 dbconnection.commit()
 
-        #### TO-DO: fix error here:  cursor.execute(query.format(columns, placeholders), values) -> TypeError: not enough arguments for format string
-
         # counting gpes 
-                
-        #### split gpes and put in list
-        countedGpes = Counter(result['gpes'])
+        countedGpes = Counter(result['gpes'].split("; "))
         result.pop('gpe', None)
         result.update(countedGpes)
         ### https://stackoverflow.com/questions/22920842/using-pythons-dictionarys-to-create-a-generic-mysql-insert-string
