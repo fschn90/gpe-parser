@@ -88,9 +88,6 @@ for article in parsed_data:
 # closing connection to db                                                                                                                                
 dbconnection.close()
 
-
-## dump gpes into database per gpe, later TO-DO
-
-## count ukraine
+## merge recogniser and counter into one, converting gpes dict into json and insert json directly into sql
 
 ## enrich gpe data, later TO-DO
