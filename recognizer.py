@@ -59,9 +59,9 @@ for result in results:
     #### draft, to do check data first, check output of countedGpes and then drop tables and insert tables and data newly
     from collections import Counter
     import json
-    countedGpes = Counter(data.split(': '))
+    countedGpes = Counter(data)
     jsonGpes = json.dumps(countedGpes, sort_keys=True, default=str)
-    parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'author':result['author'], 'gpe':countedGpes, 'scrapeDate':result['scrapeDate']})
+    parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'author':result['author'], 'gpe':jsonGpes, 'scrapeDate':result['scrapeDate']})
     # parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'author':result['author'], 'gpe':data, 'scrapeDate':result['scrapeDate']})
 
 
@@ -88,7 +88,8 @@ for article in parsed_data:
         parseDate) 
         VALUES 
         (%s, %s, %s, %s, %s, NOW())''', 
-    [article['link'], article['paper'], article['author'], "; ".join(article['gpe']), article['scrapeDate']])
+    [article['link'], article['paper'], article['author'], article['gpe'], article['scrapeDate']])
+    # [article['link'], article['paper'], article['author'], "; ".join(article['gpe']), article['scrapeDate']])
     dbconnection.commit()  
 
 # closing connection to db                                                                                                                                
