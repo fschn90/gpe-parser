@@ -58,7 +58,9 @@ for result in results:
             data.append(ent.text)
     #### draft, to do check data first, check output of countedGpes and then drop tables and insert tables and data newly
     from collections import Counter
+    import json
     countedGpes = Counter(data.split(': '))
+    jsonGpes = json.dumps(countedGpes, sort_keys=True, default=str)
     parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'author':result['author'], 'gpe':countedGpes, 'scrapeDate':result['scrapeDate']})
     # parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'author':result['author'], 'gpe':data, 'scrapeDate':result['scrapeDate']})
 
