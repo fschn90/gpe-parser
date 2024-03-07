@@ -5,8 +5,8 @@ CREATE TABLE gpeArticles (
     id SERIAL, 
     link varchar(256),
     paper varchar(256),
-    author TEXT,
-    gpes TEXT,
+    author varchar(256),
+    gpes JSON,
     scrapeDate DATETIME,
     parseDate DATETIME
 );
@@ -14,18 +14,18 @@ INSERT INTO gpeArticles (link, paper)
 VALUES ('test.com', 'testPaper');
 
 
-use austrian_news_analysing;
-CREATE TABLE gpeCounted (
-    id SERIAL, 
-    link varchar(256),
-    paper varchar(256),
-    author TEXT,
-    gpes TEXT,
-    scrapeDate DATETIME,
-    parseDate DATETIME
-);
-INSERT INTO gpeArticles (link, paper)
-VALUES ('test.com', 'testPaper');
+-- use austrian_news_analysing;
+-- CREATE TABLE gpeCounted (
+--     id SERIAL, 
+--     link varchar(256),
+--     paper varchar(256),
+--     author TEXT,
+--     gpes TEXT,
+--     scrapeDate DATETIME,
+--     parseDate DATETIME
+-- );
+-- INSERT INTO gpeArticles (link, paper)
+-- VALUES ('test.com', 'testPaper');
 
 
 -- use austrian_news_analysing;

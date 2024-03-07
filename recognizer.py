@@ -56,7 +56,11 @@ for result in results:
     for ent in Doc.ents:
         if ent.label_ == "LOC":
             data.append(ent.text)
-    parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'author':result['author'], 'gpe':data, 'scrapeDate':result['scrapeDate']})
+    #### draft, to do check data first, check output of countedGpes and then drop tables and insert tables and data newly
+    from collections import Counter
+    countedGpes = Counter(data.split(': '))
+    parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'author':result['author'], 'gpe':countedGpes, 'scrapeDate':result['scrapeDate']})
+    # parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'author':result['author'], 'gpe':data, 'scrapeDate':result['scrapeDate']})
 
 
 
