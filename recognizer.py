@@ -60,7 +60,7 @@ for result in results:
     from collections import Counter
     import json
     countedGpes = Counter(data)
-    jsonGpes = json.dumps(countedGpes, sort_keys=True, default=str)
+    jsonGpes = json.dumps(countedGpes, sort_keys=True, default=str, ensure_ascii=False)
     parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'author':result['author'], 'gpe':jsonGpes, 'scrapeDate':result['scrapeDate']})
     # parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'author':result['author'], 'gpe':data, 'scrapeDate':result['scrapeDate']})
 
