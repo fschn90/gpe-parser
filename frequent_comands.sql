@@ -23,13 +23,9 @@ DELETE FROM gpeArticles WHERE link='test.com' AND paper="testPaper";
 
 
 -- ukraine counter DRAFT
--- TEMPLATE
--- SELECT 
---   CAST(JSON_UNQUOTE(JSON_EXTRACT(logStats, "$.finish_time")) AS DATETIME) as "time",
---   (case when JSON_UNQUOTE(JSON_EXTRACT(logStats, "$.spider_name")) = "links" then cast(JSON_EXTRACT(logStats, "$.item_scraped_count/orf/new_item") as decimal) else NULL end) as Links,
---   (case when JSON_UNQUOTE(JSON_EXTRACT(logStats, "$.spider_name")) = "landingpage" then cast(JSON_EXTRACT(logStats, "$.item_scraped_count/orf/landingpage_changed") as decimal) else NULL end) as Landingpage,
---   (case when JSON_UNQUOTE(JSON_EXTRACT(logStats, "$.spider_name")) = "articles" then cast(JSON_EXTRACT(logStats, "$.item_scraped_count/orf/new_article") as decimal) else NULL end) as Articles
--- FROM mainLogStats
--- where cast(JSON_EXTRACT(logStats, "$.item_scraped_count") as decimal) is not NULL
--- ORDER BY ID DESC
--- LIMIT 3000;
+SELECT 
+  scrapeDate as "time",
+  cast(JSON_EXTRACT(gpes, "$.Ukraine") as decimal) as "word count Ukraine  
+FROM austrian_news_analysing.gpeArticles
+where cast(JSON_EXTRACT(gpes, "$.Ukraine") as decimal) is not NULL
+ORDER BY ID DESC;
