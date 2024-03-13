@@ -1,3 +1,3 @@
 #!/bin/bash
 deactivate
-activate .venv/bin/activate
+source .venv/bin/activate
