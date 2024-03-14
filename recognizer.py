@@ -8,42 +8,22 @@ import os
 #load_dotenv("../SETUP/.env")
 load_dotenv("./.env")
 
-#### passing articles where gpes already parsed to sql call to avoid double parsing 
-dbconnection = pymysql.connect(
-            host=os.environ.get("NMprod_db_domain"),
-            user=os.environ.get("dbuser"),
-            password=os.environ.get("dbpass"),
-            db=os.environ.get("dbnameAna"),
-            charset=os.environ.get("dbCharst"),
-            cursorclass=pymysql.cursors.DictCursor,
-        )
-cursor = dbconnection.cursor()
-
-sqlQuery = f"""SELECT link FROM gpeArticles;"""
-cursor.execute(sqlQuery)
-resulted = cursor.fetchall()
-resulted_list = [i['link'] for i in resulted]
-
-# closing connection to db                                                                                                                                
-dbconnection.close()
-
-
 #### loading data to be parsed from database
 dbconnection = pymysql.connect(
             host=os.environ.get("NMprod_db_domain"),
             user=os.environ.get("dbuser"),
             password=os.environ.get("dbpass"),
-            db=os.environ.get("dbnamePrs"),
             charset=os.environ.get("dbCharst"),
             cursorclass=pymysql.cursors.DictCursor,
         )
 cursor = dbconnection.cursor()
 
-in_params = ','.join(['%s'] * len(resulted_list))
-sqlQuery = f"""SELECT *, 'derstandard' as paper from {os.environ.get("derstandardPrs")} 
-                WHERE link NOT IN (%s)
-            ;""" % in_params
-cursor.execute(sqlQuery, resulted_list)
+# in_params = ','.join(['%s'] * len(resulted_list))
+sqlQuery = f"""SELECT *, 'derstandard' as paper from austrian_news_parsing.{os.environ.get("derstandardPrs")} 
+                WHERE link NOT IN (SELECT link FROM austrian_news_analysing.gpeArticles)
+            ;""" 
+cursor.execute(sqlQuery)
+# cursor.execute(sqlQuery, resulted_list)
 results = cursor.fetchall()
 
 # closing connection to db                                                                                                                                
