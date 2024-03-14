@@ -15,5 +15,3 @@ identifying Geopolitical Entities in news paper articles, which are retrieved fr
 - add other news papers
 
 - test case: create bash script that executes sql command, possible? could also be useful for news_monitor
-
-- simplify 2 sql calls into 1: get rid of talbe. via austrian_news_parsing.table 

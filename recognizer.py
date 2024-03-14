@@ -17,16 +17,11 @@ dbconnection = pymysql.connect(
             cursorclass=pymysql.cursors.DictCursor,
         )
 cursor = dbconnection.cursor()
-
-# in_params = ','.join(['%s'] * len(resulted_list))
 sqlQuery = f"""SELECT *, 'derstandard' as paper from austrian_news_parsing.{os.environ.get("derstandardPrs")} 
                 WHERE link NOT IN (SELECT link FROM austrian_news_analysing.gpeArticles)
             ;""" 
 cursor.execute(sqlQuery)
-# cursor.execute(sqlQuery, resulted_list)
 results = cursor.fetchall()
-
-# closing connection to db                                                                                                                                
 dbconnection.close()
 
 #### parsing gpe from articles
@@ -68,8 +63,4 @@ for article in parsed_data:
         (%s, %s, %s, %s, %s, NOW())''', 
     [article['link'], article['paper'], article['author'], article['gpe'], article['scrapeDate']])
     dbconnection.commit()  
-
-# closing connection to db                                                                                                                                
 dbconnection.close()
-
-## enrich gpe data, later TO-DO
