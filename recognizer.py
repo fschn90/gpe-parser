@@ -17,7 +17,7 @@ dbconnection = pymysql.connect(
             cursorclass=pymysql.cursors.DictCursor,
         )
 cursor = dbconnection.cursor()
-sqlQuery = f"""SELECT *, 'derstandard' as paper from austrian_news_parsing.{os.environ.get("derstandardPrs")} 
+sqlQuery = f"""SELECT *, '{os.environ.get("derstandardPrs")}' as paper from austrian_news_parsing.{os.environ.get("derstandardPrs")} 
                 WHERE link NOT IN (SELECT link FROM austrian_news_analysing.gpeArticles)
             ;""" 
 cursor.execute(sqlQuery)
