@@ -8,21 +8,26 @@ import os
 #load_dotenv("../SETUP/.env")
 load_dotenv("./.env")
 
-#### loading data to be parsed from database
-dbconnection = pymysql.connect(
-            host=os.environ.get("NMprod_db_domain"),
-            user=os.environ.get("dbuser"),
-            password=os.environ.get("dbpass"),
-            charset=os.environ.get("dbCharst"),
-            cursorclass=pymysql.cursors.DictCursor,
-        )
-cursor = dbconnection.cursor()
-sqlQuery = f"""SELECT *, '{os.environ.get("derstandardPrs")}' as paper from austrian_news_parsing.{os.environ.get("derstandardPrs")} 
-                WHERE link NOT IN (SELECT link FROM austrian_news_analysing.gpeArticles)
-            ;""" 
-cursor.execute(sqlQuery)
-results = cursor.fetchall()
-dbconnection.close()
+results = []
+tables = ['orfPrs', 'kronePrs']
+for table in tables:
+    #### loading data to be parsed from database
+    dbconnection = pymysql.connect(
+                host=os.environ.get("NMprod_db_domain"),
+                user=os.environ.get("dbuser"),
+                password=os.environ.get("dbpass"),
+                charset=os.environ.get("dbCharst"),
+                cursorclass=pymysql.cursors.DictCursor,
+            )
+    cursor = dbconnection.cursor()
+    sqlQuery = f"""SELECT *, '{os.environ.get(table)}' as paper from austrian_news_parsing.{os.environ.get(table)} 
+                    WHERE link NOT IN (SELECT link FROM austrian_news_analysing.gpeArticles) LIMIT 2
+                ;""" 
+    cursor.execute(sqlQuery)
+    outputs = cursor.fetchall()
+    for output in outputs:
+        results.append(output)
+    dbconnection.close()
 
 #### parsing gpe from articles
 parsed_data = []
