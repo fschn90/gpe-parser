@@ -12,6 +12,4 @@ identifying Geopolitical Entities in news paper articles, which are retrieved fr
   - https://nominatim.org
   - https://www.geonames.org
 
-- add other news papers
-
 - test case: create bash script that executes sql command, possible? could also be useful for news_monitor
