@@ -24,8 +24,13 @@ DELETE FROM gpeArticles WHERE link='test.com' AND paper="testPaper";
 
 -- ukraine counter DRAFT
 SELECT 
-  scrapeDate as "time",
-  cast(JSON_EXTRACT(gpes, "$.Ukraine") as decimal) as "word count Ukraine  
+scrapeDate as "time",
+(CASE WHEN (paper = "orf") THEN cast(JSON_EXTRACT(gpes, "$.Ukraine") as decimal) END) as "orf",
+(CASE WHEN (paper = "derstandard") THEN cast(JSON_EXTRACT(gpes, "$.Ukraine") as decimal) END) as "derstandard",
+(CASE WHEN (paper = "krone") THEN cast(JSON_EXTRACT(gpes, "$.Ukraine") as decimal) END) as "krone",
+(CASE WHEN (paper = "oe24") THEN cast(JSON_EXTRACT(gpes, "$.Ukraine") as decimal) END) as "oe24",
+(CASE WHEN (paper = "vol") THEN cast(JSON_EXTRACT(gpes, "$.Ukraine") as decimal) END) as "vol"
 FROM austrian_news_analysing.gpeArticles
 where cast(JSON_EXTRACT(gpes, "$.Ukraine") as decimal) is not NULL
-ORDER BY ID DESC;
+ORDER BY ID DESC
+-- LIMIT 500;
