@@ -23,6 +23,8 @@ logStats['gpesCounted/krone'] = 0
 logStats['gpesCounted/vol'] = 0
 
 load_dotenv("../SETUP/.env")
+load_dotenv("SETUP/.env")
+load_dotenv(".env")
 
 results = []
 tables = ['orfPrs', 'kronePrs', 'derstandardPrs', 'oe24Prs', 'volPrs']
@@ -76,18 +78,38 @@ dbconnection = pymysql.connect(
 cursor = dbconnection.cursor()
 
 for article in parsed_data:
-    cursor.execute(f'''
-        INSERT INTO gpeArticles
-        (link,
-        paper,
-        author, 
-        gpes,
-        scrapeDate,
-        parseDate) 
-        VALUES 
-        (%s, %s, %s, %s, %s, NOW())''', 
-    [article['link'], article['paper'], article['author'], article['gpe'], article['scrapeDate']])
-    dbconnection.commit()  
+    try:
+        cursor.execute(f'''
+            INSERT INTO gpeArticles
+            (link,
+            paper,
+            author, 
+            gpes,
+            scrapeDate,
+            parseDate) 
+            VALUES 
+            (%s, %s, %s, %s, %s, NOW())''', 
+        [article['link'], article['paper'], article['author'], article['gpe'], article['scrapeDate']])
+        dbconnection.commit()  
+    except Exception as e:
+        logStats['error'] = e
+        logStats['last_items_before_error'] = json.dumps(article, sort_keys=True, default=str)
+        logStats['finish_time'] = datetime.datetime.now()
+        logStats['elapsed_time'] = logStats['finish_time'] - logStats['start_time']
+
+        # converting stats dict into json 
+        logStats = {key:val for key, val in logStats.items() if val != 0}
+        stt = json.dumps(logStats, sort_keys=True, default=str)
+        try:
+            # pushing stats as json to db 
+            cursor.execute(f"INSERT INTO {os.environ.get('dbnameAna')}.{os.environ.get('mainLogAna')} (logStats, finishTime) VALUES (%s, %s)", [stt, logStats['finish_time']])
+            dbconnection.commit() 
+        except pymysql.Error as e:
+            print(e)         
+        # closing connection to db
+        dbconnection.close()
+
+
 
 # some more logging
 logStats['finish_time'] = datetime.datetime.now()
