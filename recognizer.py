@@ -5,7 +5,8 @@ import pymysql
 from dotenv import load_dotenv
 import os
 import datetime
-import pprint
+# import loggi
+from loggi import logger
 
 # # start of logging
 # logStats = {}
@@ -27,32 +28,7 @@ import pprint
 load_dotenv("./.env")
 
 
-
-class classyLogStats():
-
-    def __init__(self):
-        self.logStats = {}
-        self.logStats['start_time'] = datetime.datetime.now()
-        self.logStats['job'] = 'gpeCounter'
-        self.logStats['articlesAnalysed/orf'] = 0
-        self.logStats['articlesAnalysed/derstandard'] = 0
-        self.logStats['articlesAnalysed/oe24'] = 0
-        self.logStats['articlesAnalysed/krone'] = 0
-        self.logStats['articlesAnalysed/vol'] = 0
-        self.logStats['gpesCounted/orf'] = 0
-        self.logStats['gpesCounted/derstandard'] = 0
-        self.logStats['gpesCounted/oe24'] = 0
-        self.logStats['gpesCounted/krone'] = 0
-        self.logStats['gpesCounted/vol'] = 0 
-
-    def transformingDump(self):
-        self.logStats['finish_time'] = datetime.datetime.now()
-        self.logStats['elapsed_time'] = self.logStats['finish_time'] - self.logStats['start_time']
-        self.stt = json.dumps(self.__dict__, sort_keys=True, default=str)
-        return self.stt
-
-
-logger = classyLogStats()
+# logger = loggi.classyLogStats() 
 
 results = []
 tables = ['orfPrs', 'kronePrs', 'derstandardPrs', 'oe24Prs', 'volPrs']
@@ -94,8 +70,7 @@ for result in results:
     logger.logStats[f'gpesCounted/{result["paper"]}'] += sum(countedGpes.values())
     jsonGpes = json.dumps(countedGpes, sort_keys=True, default=str, ensure_ascii=False)
     parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'author':result.get('author', None), 'gpe':jsonGpes, 'scrapeDate':result.get('scrapeDate', None)})
-
-print(logger.transformingDump())
+logger.transformingDump()
 # #### dump gpes into database per url
 # dbconnection = pymysql.connect(
 #             host=os.environ.get("NMprod_db_domain"),
@@ -138,23 +113,4 @@ print(logger.transformingDump())
 #             print(e)         
 #         # closing connection to db
 #         dbconnection.close()
-#
-#
-#
-# # some more logging
-# logStats['finish_time'] = datetime.datetime.now()
-# logStats['elapsed_time'] = logStats['finish_time'] - logStats['start_time']
-#
-# # converting stats dict into json 
-# logStats = {key:val for key, val in logStats.items() if val != 0}
-# stt = json.dumps(logStats, sort_keys=True, default=str)
-# try:
-#     # pushing stats as json to db 
-#     cursor.execute(f"INSERT INTO {os.environ.get('dbnameAna')}.{os.environ.get('mainLogAna')} (logStats, finishTime) VALUES (%s, %s)", [stt, logStats['finish_time']])
-#     dbconnection.commit() 
-# except pymysql.Error as e:
-#     print(e)         
-# # closing connection to db
-# dbconnection.close()
-#
-# pprint.pprint(logStats)
+
