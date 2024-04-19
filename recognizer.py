@@ -5,30 +5,14 @@ import pymysql
 from dotenv import load_dotenv
 import os
 import datetime
-# import loggi
 from loggi import logger
 
-# # start of logging
-# logStats = {}
-# logStats['start_time'] = datetime.datetime.now()
-# logStats['job'] = 'gpeCounter'
-# logStats['articlesAnalysed/orf'] = 0
-# logStats['articlesAnalysed/derstandard'] = 0
-# logStats['articlesAnalysed/oe24'] = 0
-# logStats['articlesAnalysed/krone'] = 0
-# logStats['articlesAnalysed/vol'] = 0
-# logStats['gpesCounted/orf'] = 0
-# logStats['gpesCounted/derstandard'] = 0
-# logStats['gpesCounted/oe24'] = 0
-# logStats['gpesCounted/krone'] = 0
-# logStats['gpesCounted/vol'] = 0
-#
 # load_dotenv("../SETUP/.env")
 # load_dotenv("SETUP/.env")
 load_dotenv("./.env")
 
 
-# logger = loggi.classyLogStats() 
+ 
 
 results = []
 tables = ['orfPrs', 'kronePrs', 'derstandardPrs', 'oe24Prs', 'volPrs']
@@ -70,47 +54,36 @@ for result in results:
     logger.logStats[f'gpesCounted/{result["paper"]}'] += sum(countedGpes.values())
     jsonGpes = json.dumps(countedGpes, sort_keys=True, default=str, ensure_ascii=False)
     parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'author':result.get('author', None), 'gpe':jsonGpes, 'scrapeDate':result.get('scrapeDate', None)})
-logger.transformingDump()
-# #### dump gpes into database per url
-# dbconnection = pymysql.connect(
-#             host=os.environ.get("NMprod_db_domain"),
-#             user=os.environ.get("dbuser"),
-#             password=os.environ.get("dbpass"),
-#             db=os.environ.get("dbnameAna"),
-#             charset=os.environ.get("dbCharst"),
-#             cursorclass=pymysql.cursors.DictCursor,
-#         )
-# cursor = dbconnection.cursor()
-#
-# for article in parsed_data:
-#     try:
-#         cursor.execute(f'''
-#             INSERT INTO gpeArticles
-#             (link,
-#             paper,
-#             author, 
-#             gpes,
-#             scrapeDate,
-#             parseDate) 
-#             VALUES 
-#             (%s, %s, %s, %s, %s, NOW())''', 
-#         [article['link'], article['paper'], article['author'], article['gpe'], article['scrapeDate']])
-#         dbconnection.commit()  
-#     except Exception as e:
-#         logStats['error'] = e
-#         logStats['last_items_before_error'] = json.dumps(article, sort_keys=True, default=str)
-#         logStats['finish_time'] = datetime.datetime.now()
-#         logStats['elapsed_time'] = logStats['finish_time'] - logStats['start_time']
-#
-#         # converting stats dict into json 
-#         logStats = {key:val for key, val in logStats.items() if val != 0}
-#         stt = json.dumps(logStats, sort_keys=True, default=str)
-#         try:
-#             # pushing stats as json to db 
-#             cursor.execute(f"INSERT INTO {os.environ.get('dbnameAna')}.{os.environ.get('mainLogAna')} (logStats, finishTime) VALUES (%s, %s)", [stt, logStats['finish_time']])
-#             dbconnection.commit() 
-#         except pymysql.Error as e:
-#             print(e)         
-#         # closing connection to db
-#         dbconnection.close()
 
+#### dump gpes into database per url
+try:
+    dbconnection = pymysql.connect(
+                host=os.environ.get("NMprod_db_domain"),
+                user=os.environ.get("dbuser"),
+                password=os.environ.get("dbpass"),
+                db=os.environ.get("dbnameAna"),
+                charset=os.environ.get("dbCharst"),
+                cursorclass=pymysql.cursors.DictCursor,
+            )
+    cursor = dbconnection.cursor()
+    for article in parsed_data:
+        cursor.execute(f'''
+            INSERT INTO gpeArticles
+            (link,
+            paper,
+            author, 
+            gpes,
+            scrapeDate,
+            parseDate) 
+            VALUES 
+            (%s, %s, %s, %s, %s, NOW())''', 
+        [article['link'], article['paper'], article['author'], article['gpe'], article['scrapeDate']])
+except Exception as e:
+    logger.logStats['error'] = e
+    logger.logStats['last_items_before_error'] = json.dumps(article, sort_keys=True, default=str)
+    logger.transformingDump()
+finally:
+    dbconnection.commit()  
+
+
+logger.transformingDump()

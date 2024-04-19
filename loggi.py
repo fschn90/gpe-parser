@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 import os
 import datetime
 import pymysql
-import pprint
 
 class classyLogStats():
 
@@ -28,25 +27,24 @@ class classyLogStats():
         self.logStats['elapsed_time'] = self.logStats['finish_time'] - self.logStats['start_time']
         self.logStats = {key:val for key, val in self.logStats.items() if val != 0}
         self.stt = json.dumps(self.logStats, sort_keys=True, default=str)
-        return print(self.stt)
-        # try:
-        #     dbconnection = pymysql.connect(
-        #                 host=os.environ.get("NMprod_db_domain"),
-        #                 user=os.environ.get("dbuser"),
-        #                 password=os.environ.get("dbpass"),
-        #                 db=os.environ.get("dbnameAna"),
-        #                 charset=os.environ.get("dbCharst"),
-        #                 cursorclass=pymysql.cursors.DictCursor,
-        #             )
-        #     cursor = dbconnection.cursor()
-        #     cursor.execute(f"INSERT INTO {os.environ.get('dbnameAna')}.{os.environ.get('mainLogAna')} (logStats, finishTime) VALUES (%s, %s)", [self.stt, self.logStats['finish_time']])
-        #     dbconnection.commit()
-        # except pymysql.Error as e:
-        #     print(e)         
-        # # closing connection to db
-        # finally:
-        #     dbconnection.close()
-        #     pprint(self.logStats)
+        try:
+            dbconnection = pymysql.connect(
+                        host=os.environ.get("NMprod_db_domain"),
+                        user=os.environ.get("dbuser"),
+                        password=os.environ.get("dbpass"),
+                        db=os.environ.get("dbnameAna"),
+                        charset=os.environ.get("dbCharst"),
+                        cursorclass=pymysql.cursors.DictCursor,
+                    )
+            cursor = dbconnection.cursor()
+            cursor.execute(f"INSERT INTO {os.environ.get('dbnameAna')}.{os.environ.get('mainLogAna')} (logStats, finishTime) VALUES (%s, %s)", [self.stt, self.logStats['finish_time']])
+            dbconnection.commit()
+        except pymysql.Error as e:
+            print(e)         
+        # closing connection to db
+        finally:
+            dbconnection.close()
+            print(self.logStats)
 
 
 logger = classyLogStats() 
