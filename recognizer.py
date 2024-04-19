@@ -78,12 +78,12 @@ try:
             VALUES 
             (%s, %s, %s, %s, %s, NOW())''', 
         [article['link'], article['paper'], article['author'], article['gpe'], article['scrapeDate']])
+        dbconnection.commit()  
 except Exception as e:
     logger.logStats['error'] = e
     logger.logStats['last_items_before_error'] = json.dumps(article, sort_keys=True, default=str)
     logger.transformingDump()
 finally:
-    dbconnection.commit()  
-
+    dbconnection.close()
 
 logger.transformingDump()
