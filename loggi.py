@@ -41,10 +41,6 @@ class classyLogStats():
             dbconnection.commit()
         except pymysql.Error as e:
             print(e)         
-        # closing connection to db
         finally:
             dbconnection.close()
             print(self.logStats)
-
-
-logger = classyLogStats() 
