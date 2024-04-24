@@ -2,7 +2,7 @@
 
 identifying Geopolitical Entities in news paper articles, which are retrieved from a mysql database.
 
-## to-do / leads / idea collection
+## to-dos / ideas
 
 - enrich data with geopy:
 
@@ -13,3 +13,5 @@ identifying Geopolitical Entities in news paper articles, which are retrieved fr
   - https://www.geonames.org
 
 - test case: create bash script that executes sql command, possible? could also be useful for news_monitor
+- methodologize like scrapy logger, ie inc_value()
+- write README, like a pro
