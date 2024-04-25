@@ -13,4 +13,5 @@ identifying Geopolitical Entities in news paper articles, which are retrieved fr
   - https://www.geonames.org
 
 - write README, like a pro
-- make parameters for mehthods
+- include sqlQuery as parameter in methods
+- setLog function, esp. for name
