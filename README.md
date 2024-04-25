@@ -1,4 +1,4 @@
-# GPE analyser
+# GPE parser
 
 identifying Geopolitical Entities in news paper articles, which are retrieved from a mysql database.
 
@@ -12,6 +12,5 @@ identifying Geopolitical Entities in news paper articles, which are retrieved fr
   - https://nominatim.org
   - https://www.geonames.org
 
-- test case: create bash script that executes sql command, possible? could also be useful for news_monitor
-- methodologize like scrapy logger, ie inc_value()
 - write README, like a pro
+- make parameters for mehthods

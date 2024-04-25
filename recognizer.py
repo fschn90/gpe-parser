@@ -13,16 +13,6 @@ class classyLogStats():
         self.logStats = {}
         self.logStats['start_time'] = datetime.datetime.now()
         self.logStats['job'] = 'gpeCounter'
-        self.logStats['articlesAnalysed/orf'] = 0
-        self.logStats['articlesAnalysed/derstandard'] = 0
-        self.logStats['articlesAnalysed/oe24'] = 0
-        self.logStats['articlesAnalysed/krone'] = 0
-        self.logStats['articlesAnalysed/vol'] = 0
-        self.logStats['gpesCounted/orf'] = 0
-        self.logStats['gpesCounted/derstandard'] = 0
-        self.logStats['gpesCounted/oe24'] = 0
-        self.logStats['gpesCounted/krone'] = 0
-        self.logStats['gpesCounted/vol'] = 0 
 
     def transformingLogDump(self):
         self.logStats['finish_time'] = datetime.datetime.now()
@@ -40,12 +30,19 @@ class classyLogStats():
                     )
             cursor = dbconnection.cursor()
             cursor.execute(f"INSERT INTO {os.environ.get('dbnameAna')}.{os.environ.get('mainLogAna')} (logStats, finishTime) VALUES (%s, %s)", [self.stt, self.logStats['finish_time']])
-            dbconnection.commit()
+            # dbconnection.commit()
         except pymysql.Error as e:
             print(e)         
         finally:
             dbconnection.close()
             print(self.logStats)
+
+    def incLog(self, key, value=1):
+        if key not in self.logStats:
+            self.logStats[key] = value
+        else:
+            self.logStats[key] += value
+
 
 
 class gpeRecognizer(classyLogStats):
@@ -79,8 +76,8 @@ class gpeRecognizer(classyLogStats):
         nlp = spacy.load("de_core_news_lg")
         for result in self.results:
             data =[]
-            self.logStats[f'articlesAnalysed/{result["paper"]}'] += 1
-            self.logStats['articlesAnalysed'] += 1
+            self.incLog('articlesAnalysed')
+            self.incLog(f'articlesAnalysed/{result["paper"]}')
             filtered = {k: v for k, v in result.items() if v is not None}
             result.clear()
             result.update(filtered)
@@ -89,8 +86,8 @@ class gpeRecognizer(classyLogStats):
                 if ent.label_ == "LOC":
                     data.append(ent.text)
             countedGpes = Counter(data)
-            self.logStats[f'gpesCounted/{result["paper"]}'] += sum(countedGpes.values())
-            self.logStats['gpesCounted'] += sum(countedGpes.values())
+            self.incLog(f'gpesCounted/{result["paper"]}', sum(countedGpes.values()))
+            self.incLog('gpesCounted', sum(countedGpes.values()))
             jsonGpes = json.dumps(countedGpes, sort_keys=True, default=str, ensure_ascii=False)
             self.parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'author':result.get('author', None), 'gpe':jsonGpes, 'scrapeDate':result.get('scrapeDate', None)})
 
@@ -118,7 +115,7 @@ class gpeRecognizer(classyLogStats):
                     VALUES 
                     (%s, %s, %s, %s, %s, NOW())''', 
                 [article['link'], article['paper'], article['author'], article['gpe'], article['scrapeDate']])
-                dbconnection.commit()  
+                # dbconnection.commit()  
         except Exception as e:
             self.logStats['error'] = e
             self.logStats['last_items_before_error'] = json.dumps(article, sort_keys=True, default=str)
