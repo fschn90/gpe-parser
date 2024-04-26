@@ -8,7 +8,7 @@ import datetime
 
 
 
-class classyLogStats():
+class logStats():
     """Custom logging and dumping logs into database."""
 
     def __init__(self):
@@ -22,22 +22,22 @@ class classyLogStats():
         else:
             self.logStats[key] += value
     
-    def transformingLogDump(self, dbCredentials):
+    def transformingLogDump(self):
         self.logStats['finish_time'] = datetime.datetime.now()
         self.logStats['elapsed_time'] = self.logStats['finish_time'] - self.logStats['start_time']
         self.logStats = {key:val for key, val in self.logStats.items() if val != 0}
         self.stt = json.dumps(self.logStats, sort_keys=True, default=str)
         try:
             dbconnection = pymysql.connect(
-                        host=os.environ.get(dbCredentials['host']),
-                        user=os.environ.get(dbCredentials['user']),
-                        password=os.environ.get(dbCredentials['password']),
-                        charset=os.environ.get(dbCredentials['charset']),
+                        host=os.environ.get(self.db['host']),
+                        user=os.environ.get(self.db['user']),
+                        password=os.environ.get(self.db['password']),
+                        charset=os.environ.get(self.db['charset']),
                         cursorclass=pymysql.cursors.DictCursor,
                     )
             cursor = dbconnection.cursor()
-            cursor.execute(f"INSERT INTO {os.environ.get('dbnameAna')}.{os.environ.get('mainLogAna')} (logStats, finishTime) VALUES (%s, %s)", [self.stt, self.logStats['finish_time']])
-            dbconnection.commit()
+            cursor.execute(f"INSERT INTO {os.environ.get(self.db['dbNameGpes'])}.{os.environ.get(self.db['dbTableLogging'])} (logStats, finishTime) VALUES (%s, %s)", [self.stt, self.logStats['finish_time']])
+            # dbconnection.commit()
         except pymysql.Error as e:
             print(e)         
         finally:
@@ -46,27 +46,28 @@ class classyLogStats():
 
 
 
-class gpeRecognizer(classyLogStats):
+class gpeParser(logStats):
     """Getting articles out of database, the using spacy to parse geopolitical entities and then dumping the results back into database."""
 
-    def __init__(self, envPath=".env"):
-        classyLogStats.__init__(self)
+    def __init__(self, dbCredentials: dict, dbNames: dict, dbTables: dict, envPath=".env"):
+        self.db = dbCredentials | dbNames | dbTables
         load_dotenv(envPath)
+        logStats.__init__(self)
  
-    def getArticles(self, dbCredentials, tables):
+    def getArticles(self, paperTables: list):
         self.results = []
         try:
             dbconnection = pymysql.connect(
-                        host=os.environ.get(dbCredentials['host']),
-                        user=os.environ.get(dbCredentials['user']),
-                        password=os.environ.get(dbCredentials['password']),
-                        charset=os.environ.get(dbCredentials['charset']),
+                        host=os.environ.get(self.db['host']),
+                        user=os.environ.get(self.db['user']),
+                        password=os.environ.get(self.db['password']),
+                        charset=os.environ.get(self.db['charset']),
                         cursorclass=pymysql.cursors.DictCursor,
                     )
-            for table in tables:
+            for table in paperTables:
                 cursor = dbconnection.cursor()
-                sqlQuery = f"""SELECT *, '{os.environ.get(table)}' as paper from {os.environ.get('dbnamePrs')}.{os.environ.get(table)} 
-                                WHERE link NOT IN (SELECT link FROM {os.environ.get('dbnameAna')}.{os.environ.get('gpeCou')} WHERE paper = '{os.environ.get(table)}') LIMIT 500;""" 
+                sqlQuery = f"""SELECT *, '{os.environ.get(table)}' as paper from {os.environ.get(self.db['dbNameArticles'])}.{os.environ.get(table)} 
+                                WHERE link NOT IN (SELECT link FROM {os.environ.get(self.db['dbNameGpes'])}.{os.environ.get(self.db['dbTableGpes'])} WHERE paper = '{os.environ.get(table)}') LIMIT 500;""" 
                 cursor.execute(sqlQuery)
                 outputs = cursor.fetchall()
                 for output in outputs:
@@ -96,19 +97,19 @@ class gpeRecognizer(classyLogStats):
             jsonGpes = json.dumps(countedGpes, sort_keys=True, default=str, ensure_ascii=False)
             self.parsed_data.append({'link':f"{result['link']}", 'paper':result['paper'], 'author':result.get('author', None), 'gpe':jsonGpes, 'scrapeDate':result.get('scrapeDate', None)})
 
-    def dumping(self, dbCredentials):
+    def dumping(self):
         try:
             dbconnection = pymysql.connect(
-                        host=os.environ.get(dbCredentials['host']),
-                        user=os.environ.get(dbCredentials['user']),
-                        password=os.environ.get(dbCredentials['password']),
-                        charset=os.environ.get(dbCredentials['charset']),
+                        host=os.environ.get(self.db['host']),
+                        user=os.environ.get(self.db['user']),
+                        password=os.environ.get(self.db['password']),
+                        charset=os.environ.get(self.db['charset']),
                         cursorclass=pymysql.cursors.DictCursor,
-                        )        
+                    )
             cursor = dbconnection.cursor()
             for article in self.parsed_data:
                 cursor.execute(f'''
-                    INSERT INTO {os.environ.get('dbnameAna')}.{os.environ.get('gpeCou')}
+                    INSERT INTO {os.environ.get(self.db["dbNameGpes"])}.{os.environ.get(self.db['dbTableGpes'])}
                     (link,
                     paper,
                     author, 
@@ -118,10 +119,10 @@ class gpeRecognizer(classyLogStats):
                     VALUES 
                     (%s, %s, %s, %s, %s, NOW())''', 
                 [article['link'], article['paper'], article['author'], article['gpe'], article['scrapeDate']])
-                dbconnection.commit()  
+                # dbconnection.commit()  
         except Exception as e:
             self.logStats['error'] = e
             self.logStats['last_items_before_error'] = json.dumps(article, sort_keys=True, default=str)
-            self.transformingLogDump(dbCredentials)
+            self.transformingLogDump()
         finally:
             dbconnection.close()
