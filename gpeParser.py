@@ -13,14 +13,15 @@ class logStats():
 
     def __init__(self):
         self.logStats = {}
-        self.logStats['start_time'] = datetime.datetime.now()
-        self.logStats['job'] = 'gpeCounter'
 
     def incLog(self, key, value=1):
         if key not in self.logStats:
             self.logStats[key] = value
         else:
             self.logStats[key] += value
+            
+    def setLog(self, key, value):
+        self.logStats[key] = value
     
     def transformingLogDump(self):
         self.logStats['finish_time'] = datetime.datetime.now()
@@ -50,9 +51,11 @@ class gpeParser(logStats):
     """Getting articles out of database, the using spacy to parse geopolitical entities and then dumping the results back into database."""
 
     def __init__(self, dbCredentials: dict, dbNames: dict, dbTables: dict, envPath=".env"):
+        logStats.__init__(self)
+        self.setLog('job', gpeParser.__name__)
+        self.setLog('start_time', datetime.datetime.now())
         self.db = dbCredentials | dbNames | dbTables
         load_dotenv(envPath)
-        logStats.__init__(self)
  
     def getArticles(self, paperTables: list):
         self.results = []
@@ -121,8 +124,8 @@ class gpeParser(logStats):
                 [article['link'], article['paper'], article['author'], article['gpe'], article['scrapeDate']])
                 # dbconnection.commit()  
         except Exception as e:
-            self.logStats['error'] = e
-            self.logStats['last_items_before_error'] = json.dumps(article, sort_keys=True, default=str)
+            self.setLog('error', e)
+            self.setLog('last_items_before_error', json.dumps(article, sort_keys=True, default=str))
             self.transformingLogDump()
         finally:
             dbconnection.close()
