@@ -38,7 +38,7 @@ class logStats():
                     )
             cursor = dbconnection.cursor()
             cursor.execute(f"INSERT INTO {os.environ.get(self.db['dbNameGpes'])}.{os.environ.get(self.db['dbTableLogging'])} (logStats, finishTime) VALUES (%s, %s)", [self.stt, self.logStats['finish_time']])
-            # dbconnection.commit()
+            dbconnection.commit() 
         except pymysql.Error as e:
             print(e)         
         finally:
@@ -122,7 +122,7 @@ class gpeParser(logStats):
                     VALUES 
                     (%s, %s, %s, %s, %s, NOW())''', 
                 [article['link'], article['paper'], article['author'], article['gpe'], article['scrapeDate']])
-                # dbconnection.commit()  
+                dbconnection.commit()  
         except Exception as e:
             self.setLog('error', e)
             self.setLog('last_items_before_error', json.dumps(article, sort_keys=True, default=str))

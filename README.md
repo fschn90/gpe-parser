@@ -1,6 +1,6 @@
 # GPE parser
 
-identifying Geopolitical Entities in news paper articles, which are retrieved from a mysql database.
+identifying Geopolitical Entities based on spacy in news paper articles, which are retrieved from a mysql database.
 
 Setup: 
 
@@ -59,6 +59,40 @@ razer.dumping()
 
 # dumping Log
 razer.transformingLogDump()
+
+```
+## Structure of mysql database
+
+```sql
+use news_gpes;
+CREATE TABLE gpeArticles (
+    id SERIAL, 
+    link VARCHAR(256),
+    paper VARCHAR(256),
+    author VARCHAR(256),
+    gpes JSON,
+    scrapeDate DATETIME,
+    parseDate DATETIME
+);
+CREATE TABLE mainLogStats (
+    id SERIAL,
+    logStats JSON,
+    finishTime DATETIME
+);
+
+use news_articles;
+CREATE TABLE new_york_times (
+    id SERIAL,
+    link VARCHAR(256);
+    story TEXT;
+    author TEXT;
+    headline TEXT;
+    subtext TEXT;
+    scrapeDate DATETIME,
+    parseDate DATETIME
+);
+
+-- same structure for tables of zeit and scmp as nyt just above
 
 ```
 
