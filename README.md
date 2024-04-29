@@ -2,20 +2,21 @@
 
 identifying Geopolitical Entities based on spacy in news paper articles, which are retrieved from a mysql database.
 
-Setup: 
+Setup:
 
-* one .env file with MySQL Credentials
-* two databases, one for articles and one as destination for parsed GPEs
+- one .env file with MySQL Credentials
+- two databases, one for articles and one as destination for parsed GPEs
 
 ## Installing requirements
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r venv_requirements.txt
+pip install -r requirements.txt
 ```
 
 ## Example .env file
+
 ```env
 # .env
 db_host=localhost
@@ -34,24 +35,27 @@ log=mainLogStat
 ```
 
 ## Running the GPE parser
+
 Notes regarding the dictionaries provieded when initializing the gpeParser Object:
-* keys need to keep the same name as blow
-* values need to be in line with the .env file
+
+- keys need to keep the same name as blow
+- values need to be in line with the .env file
+
 ```python
 # main.py
 from gpeParser import gpeParser
 
 # initializing the gpeParser object with the relevant db credentials, db names, and db table names
 razer = gpeParser(
-    dbCredentials={'host':'db_host','user':'db_user','password':'db_pass','charset':'db_charset'}, 
-    dbNames={'dbNameGpes': 'dn_name_gpes', 'dbNameArticles':'db_name_articles'}, 
+    dbCredentials={'host':'db_host','user':'db_user','password':'db_pass','charset':'db_charset'},
+    dbNames={'dbNameGpes': 'dn_name_gpes', 'dbNameArticles':'db_name_articles'},
     dbTables={'dbTableLogging':'log', 'dbTableGpes': 'gpes'}
     )
 
 # retriving the articles, note: each news paper has its own db table and its very important to probide the paperTables exactly as specified in .env file
 razer.getArticles(paperTables=['nyt', 'zeit', 'scmp'])
 
-# parsing gpes from articles 
+# parsing gpes from articles
 razer.parsing()
 
 # dumping parsed gpes into destination database
@@ -61,12 +65,13 @@ razer.dumping()
 razer.transformingLogDump()
 
 ```
+
 ## Structure of mysql database
 
 ```sql
 use news_gpes;
 CREATE TABLE gpeArticles (
-    id SERIAL, 
+    id SERIAL,
     link VARCHAR(256),
     paper VARCHAR(256),
     author VARCHAR(256),
@@ -92,7 +97,7 @@ CREATE TABLE new_york_times (
     parseDate DATETIME
 );
 
--- same structure for tables of zeit and scmp as nyt just above
+-- same structure for tables of zeit and south_china_morning_post as new_york_times just above
 
 ```
 
@@ -100,17 +105,17 @@ CREATE TABLE new_york_times (
 
 ```
 {
-    'start_time': datetime.datetime(2024, 4, 27, 19, 3, 59, 972022), 
-    'job': 'gpeParser', 
-    'articlesAnalysed': 28, 
-    'articlesAnalysed/nyt': 7, 
-    'gpesCounted': 274, 
-    'gpesCounted/nyt': 84, 
-    'articlesAnalysed/zeit': 9, 
-    'gpesCounted/zeit': 117, 
-    'articlesAnalysed/scmp': 1, 
-    'gpesCounted/scmp': 11, 
-    'finish_time': datetime.datetime(2024, 4, 27, 19, 4, 20, 149128), 
+    'start_time': datetime.datetime(2024, 4, 27, 19, 3, 59, 972022),
+    'job': 'gpeParser',
+    'articlesAnalysed': 28,
+    'articlesAnalysed/nyt': 7,
+    'gpesCounted': 274,
+    'gpesCounted/nyt': 84,
+    'articlesAnalysed/zeit': 9,
+    'gpesCounted/zeit': 117,
+    'articlesAnalysed/scmp': 1,
+    'gpesCounted/scmp': 11,
+    'finish_time': datetime.datetime(2024, 4, 27, 19, 4, 20, 149128),
     'elapsed_time': datetime.timedelta(seconds=20, microseconds=177106)
 }
 ```
