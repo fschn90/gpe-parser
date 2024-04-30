@@ -24,8 +24,8 @@ class logStats():
         self.logStats[key] = value
     
     def transformingLogDump(self):
-        self.logStats['finish_time'] = datetime.datetime.now()
-        self.logStats['elapsed_time'] = self.logStats['finish_time'] - self.logStats['start_time']
+        self.setLog('finish_time', datetime.datetime.now())
+        self.setLog('elapsed_time', self.logStats['finish_time'] - self.logStats['start_time'])
         self.logStats = {key:val for key, val in self.logStats.items() if val != 0}
         self.stt = json.dumps(self.logStats, sort_keys=True, default=str)
         try:
