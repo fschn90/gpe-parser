@@ -23,7 +23,7 @@ class logStats():
     def setLog(self, key, value):
         self.logStats[key] = value
     
-    def transformingLogDump(self):
+    def logging(self):
         self.setLog('finish_time', datetime.datetime.now())
         self.setLog('elapsed_time', self.logStats['finish_time'] - self.logStats['start_time'])
         self.logStats = {key:val for key, val in self.logStats.items() if val != 0}
@@ -57,7 +57,7 @@ class gpeParser(logStats):
         self.db = dbCredentials | dbNames | dbTables
         load_dotenv(envPath)
  
-    def getArticles(self, paperTables: list):
+    def gettingArticles(self, paperTables: list):
         self.results = []
         try:
             dbconnection = pymysql.connect(

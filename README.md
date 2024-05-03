@@ -53,7 +53,7 @@ razer = gpeParser(
     )
 
 # retriving the articles, note: each news paper has its own db table and its very important to probide the paperTables exactly as specified in .env file
-razer.getArticles(paperTables=['nyt', 'zeit', 'scmp'])
+razer.gettingArticles(paperTables=['nyt', 'zeit', 'scmp'])
 
 # parsing gpes from articles
 razer.parsing()
@@ -62,7 +62,7 @@ razer.parsing()
 razer.dumping()
 
 # dumping Log
-razer.transformingLogDump()
+razer.logging()
 
 ```
 
