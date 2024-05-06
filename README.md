@@ -1,6 +1,6 @@
 # GPE parser
 
-identifying Geopolitical Entities based on spacy in news paper articles, which are retrieved from a mysql database.
+identifying and parsing Geopolitical Entities based on spacy in news paper articles, which are retrieved from a mysql database.
 
 Setup:
 
