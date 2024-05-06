@@ -4,7 +4,7 @@ identifying and parsing Geopolitical Entities based on spacy in news paper artic
 
 Setup:
 
-- one .env file with MySQL Credentials
+- one .env file with MySQL credentials
 - two databases, one for articles and one as destination for parsed GPEs
 
 ## Installing requirements
@@ -36,7 +36,7 @@ log=mainLogStat
 
 ## Running the GPE parser
 
-Notes regarding the dictionaries provieded when initializing the gpeParser Object:
+Notes regarding the dictionaries provieded when initializing the gpeParser object:
 
 - keys need to keep the same name as blow
 - values need to be in line with the .env file
@@ -48,7 +48,7 @@ from gpeParser import gpeParser
 # initializing the gpeParser object with the relevant db credentials, db names, and db table names
 razer = gpeParser(
     dbCredentials={'host':'db_host','user':'db_user','password':'db_pass','charset':'db_charset'},
-    dbNames={'dbNameGpes': 'dn_name_gpes', 'dbNameArticles':'db_name_articles'},
+    dbNames={'dbNameGpes': 'db_name_gpes', 'dbNameArticles':'db_name_articles'},
     dbTables={'dbTableLogging':'log', 'dbTableGpes': 'gpes'}
     )
 
@@ -66,7 +66,7 @@ razer.logging()
 
 ```
 
-## Structure of mysql database
+## Structure of mysql databases
 
 ```sql
 use news_gpes;
@@ -103,7 +103,7 @@ CREATE TABLE new_york_times (
 
 ## Example log
 
-```
+```bash
 {
     'start_time': datetime.datetime(2024, 4, 27, 19, 3, 59, 972022),
     'job': 'gpeParser',
